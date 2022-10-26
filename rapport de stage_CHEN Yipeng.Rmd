@@ -1,0 +1,869 @@
+---
+title: "Rapport de Stage  \n  L'intelligence artificielle et son application  \nsur les marchés financiers"
+author: "CHEN Yipeng"
+output:
+  pdf_document:
+    latex_engine: xelatex
+fontsize: 12pt
+linkcolor: red
+urlcolor : blue
+mainfont: Arial
+df_print: kable 
+highlight: tango
+theme: sky
+---
+
+<style>
+body {
+text-align: justify}
+</style>
+
+```{r global_options, include=FALSE}
+knitr::opts_chunk$set(fig.width=12, fig.height=8, echo=FALSE, warning=FALSE, message=FALSE)
+```
+
+<center>
+
+![JY Asset](C:/Users/47804/Desktop/desktop/rapport de stage/JY.png){height="20%"}
+
+</center>
+
+\begin{center}
+Stage : Quantitative Researcher - Machine Learning (Mars 2022 – Août 2022)
+\end{center}
+
+<center>
+
+![Université de Bordeaux](C:/Users/47804/Desktop/desktop/rapport de stage/UB.png){height="20%"}
+
+</center>
+
+\begin{center}
+Master 2 IREF-FQA : Finance Quantitative et Actuariat (Année : 2021 – 2022) 
+\end{center}
+
+\newpage
+# Remerciements :
+
+>
+
+C’est avec un grand plaisir que je tiens à réserver ces lignes en signe de 
+reconnaissance à tous ceux qui ont contribué de près ou de loin à l’élaboration de ce travail.
+
+>
+
+Au terme de ce travail, je tiens à remercier vivement l’ensemble du personnel de JY Asset, 
+spécialement le personnel du département Quantitative Trading qui m’a accompagné tout au long de 
+cette expérience professionnelle sans épargner aucun effort pour me guider sur la bonne voie du savoir.
+
+>
+
+Je tiens à ce titre à remercier M. HOU Yong, en tant que responsable du département Quantitative Trading de JY Asset 
+et mon tuteur professionnel, pour le soutien et l'aide qu'il m'a réservé tout au long de la durée de stage 
+et de la période d’élaboration de ce travail.
+
+>
+
+Je tiens à témoigner ma reconnaissance envers l’ensemble du corps professoral et 
+administratif du Master IREF pour son dévouement et sa bienveillance, ainsi que 
+pour sa veille sur la qualité de la formation.
+
+>
+
+Je tiens enfin à remercier tous mes collègues, camarades et amis ainsi que mes
+proches pour leur soutien et pour leur confiance et à qui je dédie fièrement ce travail.
+
+\newpage
+\renewcommand{\contentsname}{Table des Matières :}
+\tableofcontents
+\newpage
+
+# 1. Résumé
+
+>
+
+Vers la fin de février 2022, j'ai terminé tous mes cours du master 2 en ingénierie des
+risques économiques et financiers - parcours finance quantitative et actuariat.
+
+>
+
+Afin d'approfondir mes connaissances dans le domaine de la finance quantitative et de la programmation, j'ai 
+décidé de trouver un stage lié au métier d'Analyste quantitatif - Quant dans le secteur d'asset management en Chine. J'ai donc
+fini par me joindre à l’entreprise JY Asset au début du mois de mars 2022 en tant que Stagiaire Quantitative
+Researcher spécialisé en Machine Learning au sein du département de Quantitative Trading. Pendant mon stage, j'ai pu mieux
+comprendre le quotidien d'un Quant en faisant  des projets professionnels, notamment à travers 2 grands projets utilisant 1
+Mesure Robuste de Co-Mouvement : GS^[Gerber Statistic : Nouvelle Statistique introduite par M. Gerber et M. Markowitz dans leur
+nouvelle thèse &laquo;The Gerber statistic : a robust co-movement measure for portfolio optimization&raquo;.    
+https://papers.ssrn.com/sol3/papers.cfm?abstract_id=3880054], 2 Tests Statistiques : Test LS^[Lee-Strazicich Unit Root Test ou
+Test Lee-Strazicich de Racine Unitaire.] & Test D'Agostino^[Test de l'Asymétrie d'une Distribution.], 2 Modèles de Machine
+Learning : Bernoulli Naïve Bayes^[Classifieur Bayésien Naïf suivant la loi de Bernoulli.] & SVM^[Support Vector Machine ou
+Machine à Vecteurs de Support.] et 1 Modèle de Deep Learning : LSTM^[Long Short Term Memory ou les réseaux de Longue Mémoire à
+Court Terme.].
+
+>
+
+Concernant le premier projet, j'ai finalement réussi à construire un modèle automatique sur RStudio et Python
+dans le but de sélectionner des actions chinoises qui seront potentiellement rentables dans le futur, 
+déterminer un poids optimal^[Poids Optimal : La Meilleure Proportion du montant de richesse investi dans
+l'action.] pour chaque action choisie et évaluer la performance du portefeuille constitué uniquement des
+actions présélectionnées par le modèle. A propos du deuxième projet, j'ai fini par réaliser une stratégie
+profitable du trading haute fréquence^[Le Trading Haute Fréquence (THF) est l'une des catégories du trading
+algorithmique.] à l'aide de Python sur le marché chinois de commodity futures^[Commodity Futures : Contrat à Terme sur des
+Matières Premières.].
+
+\newpage
+
+# 2. Partie I : Introduction
+
+## 2.1 Facteurs de choix du stage
+
+Pendant mes deux ans d'études dans le master IREF, je me suis rendu compte que j'aimais beaucoup 
+la programmation sur Python, les modèles de Machine Learning, l'économétrie et la gestion de portefeuille. Après avoir fait mes
+propres recherches sur Internet, j'ai enfin trouvé un métier qui combine presque tous les éléments que je préfère. C'est donc le
+métier de Quant (Analyste quantitatif) qui me convient le plus.
+
+Un Quant ou Analyste quantitatif, est un professionnel de la finance qui développe et adapte des modèles mathématiques pour
+évaluer la rentabilité des titres financiers, prévoir les mouvements de marché et pour se protéger contre les risques. En
+particulier, ce sont les missions de Front office Quant^[Front office Quant : il conçoit des modèles directement utilisés par les
+traders.] et de Research Quant^[Research Quant : il cherche de nouveaux modèles et de nouvelles méthodologies  pour le front
+office.] qui m'intéressent vraiment. Parallèlement, toute la théorie présentée en gestion de portefeuille, notamment la
+partie sur le modèle Moyenne-Variance^[Modèle Mean – Variance de Markowitz (1952) : la base de théorie moderne de choix de
+portefeuille.], est également très attractive pour moi. 
+
+C'est pour cette raison que j'ai décidé de faire mon stage chez JY Asset, dans le département de Quantitative Trading, afin de
+découvrir ce que font les Front office Quant et Research Quant. Puisque j'ai fait une candidature spontanée, après avoir
+négocié avec mon tuteur de stage (M. HOU Yong), j'ai pu définir mes propres missions. En dernier lieu, j'ai choisi de
+prendre les missions d'un Quantitative Researcher spécialisé en Machine Learning comme missions principales vu que toute
+l'équipe de JY Asset était en train de trouver des modèles de Machine Learning convenables pour sélectionner les
+titres financiers probablement rentables dans le futur afin de construire une stratégie véritablement profitable de trading.
+
+## 2.2 Objectifs et attentes
+
+Au cours de ce stage, mon objectif principal est de comprendre l'ensemble du processus de sélection des titres financiers,
+ comment une stratégie du trading algorithmique^[Le trading algorithmique est une méthode qui permet d’automatiser, en partie ou
+totalement, son trading.] est construite dans une entreprise réelle. Et j'espère utiliser mes connaissances pour mieux aider
+l'entreprise à trouver des nouveaux modèles ou améliorer les modèles déjà existants dans le but de proposer des prédictions plus
+fiables sur les rentabilités des titres financiers à la fin du stage.
+
+En outre, j'espère également que ce stage me permettra de renforcer mes compétences en Machine Learning et ensuite d'avoir une
+vision globale et une compréhension précise sur ce que font exactement les Quantitative Researchers dans le domaine de la finance.
+
+\newpage
+
+## 2.3 L’entreprise et Missions du stagiaire Quantitative Researcher
+
+JY Asset est une société de gestion d'actifs basée dans la région Asie-Pacifique et agréée en tant que gestionnaire de fonds par
+AMAC^[L'Asset Management Association of China (AMAC) est une association d'autorégulation des sociétés de gestion de fonds en
+Chine.]. JY a établi des relations solides avec de nombreuses institutions financières de renom.
+
+>
+
+Au cours de mon stage, l'activité que j'ai analysée était principalement axée sur la prédiction des rentabilités futures de 
+titres financiers (notamment les Actions A chinoises^[Les « Actions A chinoises » sont négociées en RMB (RenMinBi : le nom
+officiel de la monnaie chinoise) sur les places boursières de Shanghai et de Shenzhen par des sociétés constituées en Chine
+continentale. Elles ne peuvent être achetées que par des investisseurs domestiques chinois et les acheteurs institutionnels
+étrangers qualifiés. Les « Actions B chinoises » sont cotées en devises (en USD par exemple) sur les bourses de Shanghai et de
+Shenzhen et sont ouvertes aux investisseurs domestiques comme étrangers.]).
+
+>
+
+Ma tâche principale consistait à concevoir et à développer des stratégies algorithmiques basées sur les modèles de Machine
+Learning les plus populaires^[Surtout "Support Vector Machines","Bernoulli Naïve Bayes" et "Long Short Term
+Memory".] afin de sélectionner des titres financiers probablement rentables dans le futur.
+
+## 2.4 Problématique du stage
+
+Tout mon stage avait pour but de mieux comprendre l'application de l'intelligence artificielle à la finance
+et de répondre notamment aux questions suivantes :  
+
+**1. Comment choisir les meilleures actions ?**
+
+>
+
+**2. Quelle est la somme idéale à investir ?**
+
+>
+
+**3. Quel est le bon moment pour acheter ou vendre ?**
+
+\newpage
+
+# 3. Partie II : L’entreprise du secteur : Gestion d’actifs
+
+## 3.1 Le secteur d'activité
+
+>
+
+### 3.1. A : La définition de l’Asset management (la Gestion d’actifs)
+
+L’asset management est une activité financière qui a pour objectif de créer, gérer, faire fructifier et maximiser les bénéfices
+de produits ou placements financiers confiés par des entreprises ou des investisseurs particuliers. Aussi appelé gestion
+d’actifs en français, l’asset management consiste à gérer un portefeuille client et à augmenter sa rentabilité en équilibrant
+les coûts et les risques afin d’atteindre les objectifs préalablement définis.
+
+Le secteur de la gestion d’actifs, dont l’asset management fait partie, a pour mission principale de faire prospérer le
+patrimoine d’un client par le biais d’investissements financiers. Basé sur quatre grands principes, qui sont la valeur, le
+leadership, l’alignement et la garantie, l’asset management concerne la gestion de produits et placements financiers dans le but
+de faire des investissements rentables.
+
+>
+
+### 3.1. B : Les principes de l’Asset management
+
+Via les mouvements des taux d’intérêt et la valeur des positions en portefeuille d’actions, les opportunités varient, tout comme
+les risques. Afin de faire un bon placement, l’asset management se fonde sur quelques principes clefs : 
+
+**L’alignement :** aligner un portefeuille financier signifie traduire les objectifs en décisions organisationnelles et
+techniques afin de, par la suite, générer des bénéfices.
+
+**La garantie :** en asset management, ce principe est fondamental car il concerne différentes étapes (les actifs, leur gestion
+et le système de gestion) qui conduisent au bon pilotage de la gestion de portefeuilles financiers.
+
+**Le leadership :** pour créer de la valeur, le leadership est indispensable car il traduit l’engagement de l’entreprise pour
+mettre en oeuvre une gestion d’actifs efficace et prospère.
+
+**La valeur :** il s’agit d’une donnée liée à l’actif et qui est déterminante pour estimer les profits que l’investissement
+permet de réaliser.
+
+\newpage
+
+### 3.1. C : La demande des consommateurs dans l’Asset management
+
+Pour la Chine, la construction d'infrastructures et l'immobilier ont précédemment été les principaux moteurs de la croissance économique pendant une dizaine d'années. Mais au cours de ces dernières années, dans le contexte de la maturation du marché
+financier national, de la politique de "non spéculation immobilière" et de la variété croissante des outils et produits
+d'investissement financiers, les résidents nationaux accordent de plus en plus d'attention au rôle des titres financiers dans
+l'allocation d'actifs.
+
+>
+
+Le fait que la Chine soit devenue le premier pays à maîtriser l'épidémie de covid-19 a donné une grande confiance aux
+investisseurs domestiques. L'excellente performance du marché des Actions A chinoises a favorisé l'augmentation de l'échelle de
+gestion de fonds.
+
+>
+
+En outre, parallèlement au transfert progressif de la richesse des résidents nationaux de l'immobilier vers le marché financier
+national, l'afflux de capitaux privés provenant d'investisseurs domestiques s'est considérablement accéléré depuis 2020.
+
+>
+
+### 3.1. D : L'informatique dans l’Asset management
+
+L’informatique joue désormais un rôle majeur dans l’asset management car les outils numériques permettent une meilleure maîtrise
+des portefeuilles de clients et un meilleur suivi des risques. L’automatisation de l’analyse de données est donc devenue un atout
+stratégique majeur pour gérer des actifs.
+
+>
+
+Limiter l'intervention humaine en automatisant certaines tâches permet, alors, de mieux suivre les données et de dégager du temps
+à l’humain pour plus de tâches à valeur ajoutée. Les outils numériques offrent plus de visibilité sur le marché et, de ce
+fait, favorisent un meilleur rendement.
+
+>
+
+Pour répondre toujours plus vite aux attentes des clients, l’asset management s’est renouvelé en intégrant avec succès
+l’informatique à ses services.
+
+\newpage
+
+## 3.2 Présentation de l’entreprise
+
+### 3.2. A : Historique et Activité de l'entreprise
+
+En 2016, une équipe d'investissement d'élites a été formée. En 2017, cette équipe a officiellement lancé ses propres stratégies
+neutres au marché^[Les stratégies neutres au marché visent à procurer des rendements absolus positifs, peu importe la direction
+du marché sous-jacent. Les portefeuilles qui en résultent sont habituellement très peu exposés à des formes de risque
+particulières, notamment au "risque de marché", soit l’effet du mouvement de l’ensemble du marché sur un placement.]. Ensuite, elle
+a créé son image de marque sous le nom de JY Asset. Entre 2018 et 2021, le nombre de fonds gérés par JY Asset en Chine est passé à
+10. Et l'équipe de JY Asset a innové davantage de stratégies de trading. Le total des actifs sous gestion de JY Asset, tant au
+niveau national qu'international, s'élève désormais à 700 millions de dollars. Aujourd'hui, JY Asset est une société internationale
+de gestion d'actifs basée dans la région Asie-Pacifique. Elle vise à fournir aux investisseurs des services d'investissement qui
+maximisent leurs bénéfices à long terme. Elle utilise des technologies récentes pour analyser la volatilité et l'inefficacité des
+marchés financiers afin de capturer un taux de rendement^[Le taux de rendement (ou ROR pour Rate Of Return) est la perte ou le
+profit d'un placement sur une certaine période, exprimé en pourcentage. ROR mesure le rendement par rapport au coût initial de
+l'investissement. Un ROR positif signifie que la position a généré un profit, tandis qu'un ROR négatif signifie une
+perte.] positif.
+
+### 3.2. B : Force et Faiblesse de l'entreprise
+
+JY Asset possède des membres assez divers. L'équipe centrale de JY est constituée de talents internationaux dans le domaine
+financier. Les membres de l'équipe ont des années d'expérience dans le domaine de gestion de fonds. La plupart d'entre eux ont
+obtenu CFA, FRM^[La certification CFA est un moyen d'intégrer le monde de la finance de la manière la plus efficace possible tout
+en développant les compétences indispensables ; La certification FRM est spécialisée sur la gestion et modélisation des risques.
+] et sont familiers avec la philosophie d'investissement sur le marché financier international. Ils ont une forte connectivité
+avec l'industrie, une large capacité de connaissance et un esprit innovant. L'équipe R&D de JY a plus de 20 ans d'expérience et se
+spécialise dans le modèle stratégique de trading quantitatif sur le marché de l'Asie-Pacifique. Cependant, l'entreprise a très peu de Data Scientists, ce qui force l'équipe de Quants à acheter ailleurs des données fiables en payant très cher. Sinon, on est obligé d'aider l'équipe de Data de petite taille à collecter des données en sacrifiant une partie du temps de la construction des nouvelles stratégies. Mais ainsi, la qualité des données n'est pas suffisamment vérifiée par des experts dans le domaine de la science des données. Par conséquent, les stratégies de trading basées sur ces données "non fiables" risquent de conduire à une rentabilité positive pendant le Backtesting^[Le Backtesting est un ensemble de procédures statistiques consistant à tester une stratégie financière à partir de données historiques. Ce genre de simulation permet d’affiner un modèle et d’isoler les hypothèses.] mais une perte d'argent lors de trading réel.
+
+\newpage
+
+# 4. Partie III : Principales réalisations
+
+Au cours de mon stage de 6 mois, j'ai réalisé deux projets importants. Le premier projet est beaucoup plus long et compliqué que le
+deuxième. Mais ces deux projets ensemble me permettent de mieux comprendre ce que c'est un vrai Quantitative
+Researcher en Asset Management.  
+
+## 4.1 Stock Picking + Portfolio Optimization  
+
+### 4.1.A : Objectif de la mission  
+
+Le premier projet a pour but : la sélection des Actions A chinoises probablement rentables dans le futur et l'optimisation de
+portefeuille constitué de ces actions dites "probablement rentables".  
+
+Autrement dit, ce projet tente de répondre aux deux premières questions précédemment mentionnées :
+
+>
+
+**1. Comment choisir les meilleures actions ?** 
+
+>
+
+**2. Quelle est la somme idéale à investir ?**
+
+>
+
+Concrètement, il consiste à utiliser toutes mes connaissances en économétrie, machine learning et gestion de portefeuille afin de fournir une liste d'actions sur laquelle un poids optimal est distribué à chaque Action A chinoise sélectionnée et de montrer les performances de portefeuille final.
+
+\newpage
+
+### 4.1.B : Contenu de la mission  
+
+**Responsabilité :**  
+
+Je suis censé construire indépendamment un algorithme qui sert à appliquer les tests statistiques et les modèles d'apprentissage
+automatique déjà existants mais les plus adéquats possibles à la prédiction des rentabilités des actions, et ensuite à former un
+portefeuille idéal avec un poids optimal indiqué pour chaque action prise dans le portefeuille. Finalement, je dois rédiger un
+rapport sur ce projet en détaillant sur le principe des tests statistiques et modèles d'apprentissage automatique
+utilisés, l'efficacité de l'algorithme construit et enfin les indicateurs de performance choisis pour évaluer le portefeuille
+final.
+
+**Présentation de la base de données :**  
+
+La base de données initiale prétraitée par l'équipe de Data n'a pas de valeurs manquantes. Et elle ne contient que le prix de
+clôture ajusté des 209 actions différentes sur la période du 04/01/2007 au 08/02/2022.  
+
+En ligne, ce sont les dates de chaque jour ouvré à la Bourse entre 01/2007 et 02/2022.
+En colonne, ce sont les symboles de toutes les 209 actions différentes.
+
+```{r, include=TRUE, echo=FALSE}
+# library(reticulate)
+# use_python('C:/Users/47804/anaconda3/python.exe')
+```
+
+>
+
+![Prix de clôture](C:/Users/47804/Desktop/desktop/rapport de stage/StockA.jpg)
+
+**Tâches effectuées :**  
+
+Notations essentielles : 
+
+$p_{t}$ : le cours de l'action à la date t qui est un jour ouvré à la Bourse
+
+$r_{t}$ : le rendement logarithmique = $log(p_{t}) − log(p_{t−1})$ 
+
+\newpage
+
+**a. Première sélection basée sur la Stationnarité et l'Asymétrie**  
+
+^[&laquo;MIEUX COMPRENDRE LES MÉTHODES DE PRÉVISION DES SÉRIES CHRONOLOGIQUES&raquo;
+https://www.aquiladata.fr/insights/mieux-comprendre-les-methodes-de-prevision-des-series-chronologiques/]{Une propriété
+importante de la série chronologique est sa stationnarité. Si un processus est stationnaire, cela signifie que ses propriétés
+statistiques ne varie pas dans le temps, à savoir sa moyenne, sa variance (homoscédasticité) ou encore sa covariance.
+
+Alors pourquoi la stationnarité est-elle si importante ? Parce qu’il est plus aisé de faire des prédictions sur une série s’il
+est possible de supposer que les futures propriétés statistiques ne seront pas différentes de celles actuellement observées. 
+La plupart des modèles de prévisions de séries chronologiques, d’une manière ou d’une autre, s’appuie sur ces propriétés
+(moyenne ou variance, par exemple). Ces pronostics seraient faux si la série originale n’était pas stationnaire.}
+
+>
+
+En partant du principe mentionné au-dessus, j'ai donc décidé de commencer par réaliser le Test LS vu en cours d'économétrie 
+de Madame Lebreton pour trouver des actions ayant des séries temporelles $r_{t}$ qui suivent un processus stationnaire.  
+
+**Test de Lee et Strazicich (Test LS) :**  
+
+Le Test LS est performant en taille et en puissance que si une seule date de rupture est supposée. Par conséquent, j'ai
+seulement considéré un changement structurel avec modèle "crash"^[$DU_{t}$ : la variable à ajouter pour modéliser un changement
+dans le niveau de la partie déterministe de la série temporelle $r_{t}$ ] ici.  
+
+$H_{0}$ : Présence de racine unitaire avec 1 changement structurel (Hypothèse nulle)
+
+$H_{a}$ : Absence de racine unitaire avec 1 changement structurel (Hypothèse alternative)
+
+**Critère de sélection :**
+
+$sval$ : valeur de la statistique du test  
+
+$cval$ : valeur critique au seuil de risque à 5%
+
+$my~lag$ : le nombre de lag initialement fixé à 5
+
+$op~lag$ : le nombre optimal de lag proposé par la procédure basée sur le BIC^[Bayesian Information Criterion : critère
+d'information bayésien] 
+
+Si $my~lag = op~lag$ et $sval < cval$ :
+
+Alors $H_{0}$ sera rejetée et la stationnarité de la série $r_{t}$ sera acceptée.
+
+Par conséquent, l'action qui possède ce type de série temporelle $r_{t}$ suivant un processus stationnaire sera
+retenue.  
+
+\newpage
+
+Après avoir réalisé le Test LS sur l'ensemble des actions dans la base de données, 
+j'ai pu supprimer des actions dites "non stationnaires" dans la liste initiale des 209 actions.
+
+Ici, seulement le résultat du Test LS de la 209ème action est montré : 
+
+![Test LS de la 209ème action](C:/Users/47804/Desktop/desktop/rapport de stage/1.png)
+
+"Number of lags determined by general-to-specific lag selection: 3" => $op~lag=3$  
+
+Mais $my~lag=5$ => $my~lag ≠ op~lag$,  
+
+donc la 209ème action ne sera pas retenue.
+
+![Temps passé sur le Test LS](C:/Users/47804/Desktop/desktop/rapport de stage/2.png)
+
+J'ai consacré à peu près 45 minutes à faire le Test LS pour chaque action parmi les 209 actions initiales.
+
+![Classification des actions basée sur la stationnarité](C:/Users/47804/Desktop/desktop/rapport de stage/3+4.png)
+
+$OK$ : Stationnarité Présente
+
+$NS$ : Non Stationnarité 
+
+$NG$ : Not Good => Aucun Résultat pour le Test LS
+
+\newpage
+
+Ensuite, j'ai gardé uniquement des actions avec l'étiquette "OK" : 
+
+![Actions "stationnaires"](C:/Users/47804/Desktop/desktop/rapport de stage/5+6.png)
+
+Il reste donc 117 actions dans le portefeuille. 
+
+>
+
+Le Skewness mesure l'asymétrie d'une distribution. Une valeur positive du coefficient d’asymétrie révèle
+une distribution plus étendue vers les valeurs positives, alors qu’une valeur négative met en évidence une
+distribution plus étendue vers les valeurs négatives. Pour un investissement, le Skewness permet de relever
+les extrêmes d’une distribution des rendements : elle permet soit de désigner des cas de pertes extrêmes
+(Skewness négative élevée), soit des cas de gains extrêmes (Skewness positive élevée).
+
+Lorsque le Skewness est statistiquement nul, la distribution des rendements est symétrique, ce qui veut dire que
+la probabilité de gains est égale à la probabilité de pertes.
+
+Afin d'exploiter plus efficacement les opportunités de gains potentiels découlant de l'asymétrie de la distribution des rendements,  j'ai choisi le Test D’Agostino dans le but d'enlever toutes les actions qui ont une distribution symétrique des rendements.
+
+**Test de l’Asymétrie (Test D’Agostino) :** 
+
+$H_{0}$ : $Skewness = 0$ [symétrie]
+
+$H_{a}$ : $Skewness ≠ 0$ [asymétrie]
+
+**Critère de sélection :**
+
+$p-value$ : probabilité de rejeter à TORT l’hypothèse nulle
+
+Si $p-value < 0.05$ : 
+
+Alors $H_{0}$ sera rejetée et l'asymétrie de la distribution des rendements $r_{t}$ sera acceptée.
+
+Par conséquent, l'action qui possède ce type de distribution des rendements $r_{t}$ asymétrique sera retenue.
+
+Après avoir réalisé le Test D’Agostino sur l'ensemble des actions dans le portefeuille,
+ j'ai pu enlever toutes les actions dites "symétriques" parmi les 117 actions restantes.
+
+\newpage
+
+Ici, seulement le résultat du Test D’Agostino de la 117ème action est montré : 
+
+![Test D’Agostino de la 117ème action](C:/Users/47804/Desktop/desktop/rapport de stage/8.png)
+
+$p-value < 2.2e-16$ => $p-value < 0.05$ 
+
+=> l'asymétrie de la distribution des rendements $r_{t}$ est présente dans cette action.
+
+Donc, la 117ème action sera retenue.
+
+![Classification des actions basée sur l'asymétrie](C:/Users/47804/Desktop/desktop/rapport de stage/9+10.png)
+
+$OK$ : => La distribution est asymétrique
+
+$NG$ : Not Good => La distribution est symétrique
+
+Ensuite, j'ai gardé uniquement des actions avec l'étiquette "OK" :
+
+![Actions "asymétriques"](C:/Users/47804/Desktop/desktop/rapport de stage/11+12.png)
+
+Il reste donc 89 actions dans le portefeuille.
+
+En résumé, les actions qui possèdent les caractéristiques de la stationnarité et de l'asymétrie sont les suivantes : 
+
+![Actions "stationnaires + asymétriques"](C:/Users/47804/Desktop/desktop/rapport de stage/13+14.png)
+
+Cependant, dans cette liste des actions, 
+
+les deux premières actions sont en fait des indices de marché.
+
+Il est nécessaire de les supprimer : 
+
+![Actions "stationnaires + asymétriques"](C:/Users/47804/Desktop/desktop/rapport de stage/15.jpg)
+
+Il reste donc 87 actions dans le portefeuille. 
+
+**Nouvelles bases de données:**
+
+Puisque les prix des actions sont déjà utilisés pour faire la première sélection, maintenant c'est mieux d'utiliser des données différentes.
+
+En me basant sur le cours d'analyse financière^[L'analyse financière consiste à tirer des renseignements sur la santé d'une
+entreprise, notamment en matière de solvabilité et de rentabilité, à partir des documents comptables.], j'ai finalement pris
+le Tableau de Flux de Trésorerie (entre 2007 et 2021) de chaque entreprise concernée comme les inputs du modèle de Machine
+Learning.
+
+Remarquons qu'avant nous avions des données journalières, mais les données comptables sont trimestrielles,
+il nous faut donc calculer les rentabilités (toujours logarithmiques) trimestrielles en utilisant seulement
+les prix à la fin des mois de mars, juin, septembre et décembre vu que les données comptables sont sorties 
+vers la fin de ces mois.
+
+\newpage
+
+Ensuite, après avoir calculé les rentabilités trimestrielles, j'ai fait une classification sur toutes les rentabilités 
+($return$) :
+
+$Si~~return >=0$ : La rentabilité est du type "1" ; 
+
+$Si~~return <0$ : La rentabilité est du type "0" ; 
+
+Par exemple, pour la première action "SH600011", nous avons :
+
+![Action SH600011](C:/Users/47804/Desktop/desktop/rapport de stage/16+17.png)
+
+Dans la colonne "SH600011", nous avons des informations sur les prix trimestriels de cette action. 
+Dans la colonne en Chinois, nous avons des informations comptables liées à cette action.
+Toutes ces informations sont trimestrielles (entre 2007 et 2021, soit une durée de 60 trimestres).
+
+Ici, seulement les 4 premières colonnes sont montrées.
+
+En fait, il y a 62 colonnes au total pour l'action "SH600011".
+
+![Size pour l'action "SH600011"](C:/Users/47804/Desktop/desktop/rapport de stage/18.jpg)
+
+Les 3 premières colonnes représentent respectivement la date, le mois et le prix trimestriel de l'action. Et les colonnes restantes contiennent toutes les informations comptables dans le Tableau de Flux de Trésorerie de l'entreprise 
+associée.
+
+\newpage
+
+En supprimant les 3 premières colonnes et en ajoutant 2 nouvelles colonnes "Returns" et "Label" : 
+
+![Action SH600011](C:/Users/47804/Desktop/desktop/rapport de stage/19+20.png)
+
+Nous avons une telle base de données pour chaque action parmi les 87 actions dans le portefeuille.
+
+
+**b. Deuxième sélection basée sur le Classifieur Bayésien Naïf (Loi de Bernoulli)**
+
+La classification naïve bayésienne est un type de classification Bayésienne probabiliste simple basée sur le théorème de Bayes avec une forte indépendance (dite naïve) des hypothèses. Elle met en oeuvre un classifieur bayésien naïf, ou classifieur naïf de Bayes, appartenant à la famille des classifieurs linéaires.
+
+La méthode de classification naïve bayésienne est un algorithme d'apprentissage supervisé (supervised machine learning) qui permet de classifier un ensemble d'observations selon des règles déterminées par l'algorithme lui-même. Cet outil de classification doit dans un premier temps être entrainé sur un jeu de données d'apprentissage qui montre la classe attendue en fonction des entrées. Pendant la phase d'apprentissage, l'algorithme élabore ses règles de classification sur ce jeu de données, pour les appliquer dans un second temps à la classification d'un jeu de données de prédiction. Le classificateur bayésien naïf implique que les classes du jeu de données d'apprentissage soient connues et fournies, d'où le caractère supervisé de l'outil.
+
+Ici, il est favorable de choisir la loi de Bernoulli puisque l'on a transformé notre question de prédiction sur les rentabilités
+en une question de classification binaire sur les rentabilités.
+
+Avant de commencer à entraîner le modèle de Bernoulli Naïve Bayes, il est nécessaire de transformer nos données comptables 
+(quantitatives) qui varient sur une échelle assez large. Finalement, en restant sur la façon binaire, j'ai fait la binarisation^[Toutes les valeurs au-dessus du seuil sont marquées comme 1 et toutes les valeurs qui sont égales ou inférieures au seuil sont marquées comme 0.] sur toutes les données comptables en prenant une valeur de seuil égale à 0.
+
+En mettant les informations comptables comme les inputs du modèle et les types de rentabilités ("1" ou "0") comme 
+les valeurs à prédire, j'ai utilisé ce modèle de Bernoulli Naïve Bayes afin de faire la classifications des rentabilités futures
+pour chaque action.
+
+Ensuite, pour évaluer la performance du modèle dans chaque action, j'ai calculé   
+
+$Accuracy$ et $Precision$. 
+
+![Matrice de confusion](C:/Users/47804/Desktop/desktop/rapport de stage/ABC.jpg)
+
+$Accuracy = (A+D) / (A+B+C+D)$
+
+**Critère de sélection :**
+
+Si $Accuracy >= 0.5$ et $Precision >=0.5$ : 
+
+Alors l'action concernée sera retenue.
+
+**Règles de scoring :**
+
+Brièvement, dans les actions restantes ayant $Accuracy~et~Precision >= 0.5$, j'ai utilisé l'ensemble de données entre 2007 et 2018
+pour entraîner le modèle dans le but de prédire les types de rentabilités pour les 12 trimestres suivants (soit 36 mois = 3 ans)
+{entre 2019 et 2021}.
+
+Pour un trimestre qui va venir prochainement, si la classification de la rentabilité de l'action indique que la rentabilité est du type "1" (rentabilité positive ou nulle), alors cette action va obtenir 1 point.
+
+Pour un trimestre qui va venir prochainement, si la classification de la rentabilité de l'action indique que la rentabilité est du type "0" (rentabilité négative), alors cette action va obtenir 0 point.
+
+\newpage
+
+$Score =$ la somme de tous les points obtenus pendant les 12 trimestres suivants.
+
+Par exemple, si pendant les 12 trimestres suivants l'action continue à obtenir 1 point sans arrêt,
+finalement cette action va avoir un score de 12 points au total qui est évidemment le score maximal et le meilleur score.
+
+Après, j'ai utilisé ces règles de scoring afin de calculer un score pour chaque action restante.
+
+Enfin, j'ai ordonné de manière décroissante toutes les actions restantes en fonction de leur $Score,Precision~et~Accuracy$ :
+
+![Actions ordonnées](C:/Users/47804/Desktop/desktop/rapport de stage/21+22.png)
+
+Il reste encore 42 actions.
+
+Or, pour atteindre les niveaux raisonnables de diversification, il faut au moins 25 titres^["Reasonable levels of diversification require as little as 25 securities" : chapitre 1 &laquo;Efficient diversification&raquo; page 30 (cours de Gestion de portefeuille de madame Boussetta.)].
+
+Par conséquent, j'ai simplement pris les 25 premières actions qui sont meilleures que les autres actions en termes de $Score,Precision~et~Accuracy$ afin de constituer le portefeuille final.
+
+\newpage
+
+![Portefeuille Final](C:/Users/47804/Desktop/desktop/rapport de stage/23.jpg)
+
+>
+
+**c. Optimisation du portefeuille**
+
+Après avoir lu la nouvelle thèse de M. Gerber et M. Markowitz : &laquo;The Gerber statistic : a robust co-movement measure for portfolio optimization&raquo;, j'ai décidé d'utiliser "the Gerber Statistic"^[Gerber Statistic => notamment pour remplacer "the Historical Covariance".] dans le cadre du modèle de "Mean – Variance" afin d'optimiser le portefeuille.
+
+Dans la thèse, les deux auteurs principaux ont utilisé les rentabilités mensuelles de 9 différents titres financiers afin de
+faire le procédure de backtesting et donc de montrer que la performance du portefeuille optimisé en appliquant "the Gerber Statistic" est vraiment meilleure dans presque toutes les situations.
+
+En suivant cette logique, j'ai donc formé une nouvelle base de données en prenant le prix de clôture ajusté des 25 actions précédemment sélectionnées à la fin de chaque mois entre 2007 et 2021.
+
+\newpage
+
+![Prix mensuel de clôture ajusté](C:/Users/47804/Desktop/desktop/rapport de stage/24.jpg)
+
+En calculant les rentabilités mensuelles : 
+
+![Rentabilités mensuelles](C:/Users/47804/Desktop/desktop/rapport de stage/25.jpg)
+
+>
+
+**Maximisation de la rentabilité du portefeuille final sous contrainte de risque :** 
+
+Notations Essentielles :
+
+$max_{w}~R_{P}~s.c.~\sigma_{P}=\sigma*$
+
+$0<~w_{i}~<1~\forall i=1,...,25$
+
+$\Sigma^{25}_{i=1}w_{i}=1$
+
+Le poids $w$ pour chaque action est supérieur à 0 et inférieur à 1.
+
+La somme des poids $w$ fait 1.
+
+\newpage
+
+![Performance du Portefeuille + Poids Optimal](C:/Users/47804/Desktop/desktop/rapport de stage/result.png)
+
+Finalement, le portefeuille optimisé par le modèle de "Mean – Variance" avec "the Gerber Statistic" a présenté
+une rentabilité annuelle de 26.5%, un ratio de Sharpe égal à 1.058 et un ratio de Sortino égal à 1.832 pour un niveau de risque^[Le risque du portefeuille est mesuré par l'écart-type annuel ici.] donné à 25%.
+
+Le poids optimal de chaque action dans le portefeuille est également proposé. 
+
+### 4.1.C : Outils employés
+
+**RStudio :** La première sélection basée sur la stationnarité et l'asymétrie est faite sous R.
+
+**Python :** La deuxième sélection basée sur le modèle de Machine Learning (Bernoulli Naïve Bayes) et l'optimisation du portefeuille sont faites sous Python.
+
+\newpage
+
+### 4.1.D : Difficultés rencontrées et Solutions apportées
+
+La première difficulté est de bien connaître les modèles de Machine Learning les plus populaires et de savoir comment
+les appliquer à la finance. 
+
+La deuxième difficulté est de transformer les idées des M. Gerber et M. Markowitz en algorithme sur Python 
+afin d'utiliser leur nouvelle statistique proposée pour optimiser notre propre portefeuille.
+
+Au final, j'ai lu un livre en anglais qui s'appelle &laquo;Python for Finance and Algorithmic Trading&raquo;^[Auteur : Lucas INGLESE.] afin de renforcer ma compétence en programmation sous Python et d'acquérir les bases solides en machine learning.
+Et je suis également allé étudier la façon de coder plus efficacement sur GitHub^[GitHub est un site web et un
+service de cloud qui aide les développeurs à stocker et à gérer leur code, ainsi qu'à suivre et contrôler les modifications
+qui lui sont apportées.].
+
+## 4.2 High Frequency Trading Research  
+
+### 4.2.A : Objectif de la mission  
+
+Le deuxième projet a pour but de comprendre comment utiliser Machine Learning et Deep Learning 
+dans le marché chinois de commodity futures afin de construire une stratégie réellement profitable 
+du trading haute fréquence.
+
+Autrement dit, ce second projet tente de répondre à la dernière question précédemment mentionnée :
+
+**3. Quel est le bon moment pour acheter ou vendre ?** 
+
+### 4.2.B : Contenu de la mission  
+
+**Responsabilité :**
+
+Je suis censé construire indépendamment une stratégie de trading haute fréquence basée sur soit le modèle de **SVM**
+soit le modèle de **LSTM** en prenant uniquement les données sur le contrat à terme de Rebar^[Steel reinforcement bars.]. Ensuite, il faut choisir le modèle qui arrive à gagner plus d'argent. Finalement, je dois rédiger un rapport sur ce projet en détaillant la différence entre les deux stratégies construites basées sur **SVM** et **LSTM** surtout en termes de la courbe de capital^[L'évolution de capital.].
+
+\newpage
+
+**Présentation de la base de données :**
+
+Les données par minutes de "OHLCV"^[Open : Le premier prix tradé ; High : Le prix tradé le plus élevé ; Low : Le prix tradé le plus bas ; Close : Le dernier prix tradé ; Volume : Le volume total de toutes les transactions.] sur le contrat à terme de Rebar 
+entre le 16/05/2022 et le 19/05/2022 sont utilisées dans ce projet.
+
+**Tâches effectuées :**
+
+Dans ce projet, j'ai utilisé les prix Open pour calculer les rentabilités logarithmiques ($return$).
+
+$Si~~return >=0$ => signal d'acheter une unité du contrat à terme de Rebar => "+1" ; 
+
+$Si~~return <0$ => signal de vendre une unité du contrat à terme de Rebar => "-1" ;
+
+Pour le modèle de **SVM** :  
+
+Les données par minute entre le 21:13 du 16/05/2022 et le 21:38 du 18/05/2022 sont l'ensemble d'entraînement.
+
+Les données par minute entre le 21:39 du 18/05/2022 et le 15:00 du 19/05/2022 sont l'ensemble de test.
+
+Pour le modèle de **LSTM** : 
+
+Les données par minute entre le 21:13 du 16/05/2022 et le 21:57 du 18/05/2022 sont l'ensemble d'entraînement.
+
+Les données par minute entre le 21:58 du 18/05/2022 et le 15:00 du 19/05/2022 sont l'ensemble de test.
+
+**Première stratégie de trading haute fréquence avec SVM :** 
+
+Le principe des SVM (Machines à Vecteurs de Support) consiste à ramener un problème de classification
+à un hyperplan (feature space) dans lequel les données sont séparées en plusieurs classes dont la 
+frontière est la plus éloignée possible des points de données. Le concept de frontière implique que les 
+données soient linéairement séparables. Pour y parvenir, les machines à vecteurs de support font appel à des noyaux,
+c'est-à-dire des fonctions mathématiques permettant de projeter et séparer les données dans l'espace vectoriel,
+les "vecteurs de support" étant les données les plus proches de la frontière. C'est la frontière la plus éloignée
+de tous les points d'entraînement qui est optimale, et qui présente donc la meilleure capacité de généralisation.
+
+Après avoir construit un tel modèle de Machine Learning, j'ai mis une condition pour que le modèle trouvé soit
+"le meilleur" : 
+
+La condition est la suivante :  
+$Total~Strat~Returns > 5.5~;~Sharpe~Ratio > 1~;~Precision > 0.95$.
+
+$Total~Strat~Returns$ : Rentabilité Totale de la Stratégie
+
+\newpage
+
+Finalement, les rentabilités de cette stratégie avec "le meilleur" modèle de SVM ont énormément surpassé celles 
+du marché à partir du 19/05/2022 matin jusqu'à la fin de la journée. Mais après avoir tracé la courbe de capital en considérant les coûts de transaction, cette stratégie est en fait devenue une stratégie non profitable.
+
+![Backtesting - SVM](C:/Users/47804/Desktop/desktop/Quant/钧誉资产-JYQUANT/SVM-回测.png){height="32%"}
+
+>
+
+![Courbe de Capital - SVM](C:/Users/47804/Desktop/desktop/Quant/钧誉资产-JYQUANT/SVM-资金曲线.png){height="32%"}
+
+\newpage
+
+**Deuxième stratégie de trading haute fréquence avec LSTM :** 
+
+Long Short Terme Memory (LSTM) est une architecture de réseau de neurones récurrents (RNN) utilisée dans le domaine 
+de l'apprentissage en profondeur (deep learning). A la différence des réseaux neuronaux à propagation avant, le LSTM
+a des confections de feed-back. Il peut non seulement traiter des data points uniques, mais également des séquences
+complètes de données.
+
+Une unité LSTM de base est composée d'une cellule, d'une porte d'entrée, d'une porte de sortie et d'une porte d'oubli. La cellule se souvient des valeurs sur des intervalles de temps arbitraires et les trois portes régulent le flux d'information entrant et sortant de la cellule.
+
+Après avoir construit un tel modèle de Deep Learning, j'ai directement demandé à l'ordinateur de montrer uniquement 
+la courbe de capital sur laquelle la longueur de séquence permet de construire une stratégie profitable.
+
+![Courbe de Capital - LSTM](C:/Users/47804/Desktop/desktop/Quant/钧誉资产-JYQUANT/LSTM - 资金曲线.png)
+
+D'après le graphique, la meilleure longueur de séquence est de 19.
+
+Et avec cette stratégie basée sur le modèle de LSTM ($sequence = 19$),
+
+nous pourrons gagner à peu près 1000 yuans pendant une journée sur le marché chinois de commodity futures.
+
+\newpage
+
+### 4.2.C : Outils employés
+
+**Python :**
+
+L'ensemble du projet est réalisé sur Python.
+
+En particulier, la partie de Machine Learning (SVM) est faite avec le **Scikit-learn**^[Scikit-learn est
+la principale bibliothèque d'outils dédiés au machine learning et à la data-science dans l'univers Python.].
+
+La partie de Deep Learning (LSTM) est faite avec le **PyTorch**^[PyTorch est un framework de deep learning relativement récent basé sur Torch.].
+
+### 4.2.D : Difficulté rencontrée et Solution apportée
+
+La seule difficulté que j'ai rencontré en faisant ce deuxième projet, c'était la compréhension du modèle de deep learning et
+l'utilisation de **PyTorch**.
+
+Afin de résoudre ce problème, j'ai finalement lu un livre en anglais qui s'appelle &laquo;Deep Learning with PyTorch&raquo;^[Auteurs : Eli Stevens, Luca Antiga and Thomas Viehmann.] afin de renforcer ma compétence en deep learning 
+et **PyTorch** simultanément.
+
+>
+
+# 5. Partie IV : Conclusion
+
+**Enseignements et Apports du stage**
+
+Ce stage a été très enrichissant pour moi, car il m'a permis de comprendre en détail surtout la construction des modèles de Machine Learning appliqués à la finance quantitative. Grâce à ce stage, j'ai eu mes propres réponses aux questions centrales
+liées au trading :
+
+**1. Comment choisir les meilleures actions ?** 
+
+**2. Quelle est la somme idéale à investir ?** 
+
+**3. Quel est le bon moment pour acheter ou vendre ?**
+
+Au cours de ce stage, j'ai appris plein de nouveaux modèles en Machine Learning sachant qu'il y a un seul cours : **Econometrics of Big Data** qui a présenté la théorie de base sur Machine Learning pendant mon M2 IREF FQA. En ce qui concerne le Deep Learning, j'ai augmenté mon niveau sur ce domaine en me basant sur des livres.
+
+Après avoir effectué les deux projets mentionnés dans la Partie III : Principales réalisations, je pense être plus familier
+avec la Gestion de Portefeuille, les modèles de Machine Learning et la programmation (notamment en Python). 
+
+De plus, le moment où j'ai débuté mon stage, toute l'équipe de JY Asset était en train de trouver des modèles de Machine Learning convenables pour sélectionner les titres financiers probablement rentables dans le futur. Finalement, je suis fier de pouvoir leur proposer mes propres solutions pour qu'ils puissent utiliser mes modèles afin de construire une stratégie véritablement profitable de trading.
+
+>
+
+En même temps, j'ai une compréhension plus profonde de ce que font les Quants (analystes quantitatifs) dans le secteur d'asset management. Le métier de Quant en finance de marché, consiste à développer et implémenter des modèles mathématiques pour évaluer le prix des dérivés, prédire les mouvements de marché. Mais le Quant dans l'asset management consiste plutôt à concevoir des modèles 
+mathématiques complexes utilisables pour trouver des titres financiers qui seront probablement rentables dans le futur
+à investir et proposer ainsi un meilleur fonds privé aux clients visés par rapport aux autres concurrents.  
+
+>
+
+**Utilisation des connaissances et Suggestions du programme**
+
+En outre, au cours de ce stage, j'ai utilisé de nombreuses connaissances
+que j'avais acquises dans le cadre de cours scolaires, comme la programmation Python et R,
+l'économétrie et la gestion de portefeuille.
+
+>
+
+J'aimerais également faire une petite suggestion concernant le
+programme d'études de notre master IREF : J'ai observé qu'il y de plus en plus d'entreprises 
+qui cherche un talent en intelligence artificielle dans le domaine de la finance. Donc, je suggère que l'école pourrait offrir un
+cours spécial pour apprendre l'utilisation de **PyTorch** afin de montrer aux étudiants des 2 parcours (ERDS et FQA) comment construire des modèles de Deep Learning, ce qui serait très utile pour les emplois futurs.
+
+\newpage
+
+**Planification de l'avenir**
+
+Selon moi, de façon générale, l’intelligence artificielle est appliquée à la finance dans trois domaines différents : l’optimisation des portefeuilles financiers, la prédiction des prix ou des tendances futures des actifs financiers et l’analyse du sentiment des actualités. Les modèles d’apprentissage automatique sont de plus en plus répandus dans le trading algorithmique et la gestion des investissements. 
+
+>
+
+Par conséquent, à l'avenir, je vais sûrement continuer à développer mes connaissances en intelligence artificielle appliquée à la finance afin de pouvoir devenir un **Research Quant**^[Research Quant : C’est le métier le plus compétitif à décrocher et il n’est pas rare de voir comme prérequis un PhD pour être éligible à ce type de poste. Les équipes de Research Quant ont par ailleurs des effectifs très réduits.] dans le futur.
+
+>
+
+Plus précisément, après avoir terminé mon stage, je vais concentrer mon attention sur l'application de NLP(Natural Language Processing)^[NLP : Traitement automatique du langage naturel] à la finance. Par exemple, on peut construire un modèle de NLP afin de 
+lire les rapports annuels des grandes entreprises afin de tirer des informations utiles pour la sélection des actions.
+
+
