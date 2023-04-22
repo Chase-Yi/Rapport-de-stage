@@ -3,7 +3,7 @@
 
 The report is written entirely in French
 
-[L’intelligence artificielle et son application sur les marchés financiers 
+[L’intelligence artificielle et son application sur les marchés financiers  
 | Artificial intelligence and its application in financial markets](https://github.com/Chase-Yi/Rapport-de-stage/blob/main/Rapport%20de%20stage%20M2%20IREF%20FQA_CHEN%20Yipeng.pdf)
 
 Résultat obtenu : 17/20 
